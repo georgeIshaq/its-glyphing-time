@@ -6,6 +6,7 @@ extends Node2D
 @onready var enemies_node: Node2D = $Enemies
 @onready var camera: Camera2D = $Player/Camera2D
 @onready var hud = $HUD
+@onready var audio = $AudioManager
 
 const ENEMY_BASIC_SCENE := preload("res://scenes/EnemyBasic.tscn")
 const ENEMY_FAST_SCENE := preload("res://scenes/EnemyFast.tscn")
@@ -94,6 +95,7 @@ func _on_glyph_recognized(result: Dictionary, points: PackedVector2Array) -> voi
 
 func _on_spell_cast(spell_name: String, element: String) -> void:
 	hud.show_spell_name(spell_name, element)
+	audio.play_spell(element)
 	# Screen shake scales with spell power
 	match spell_name:
 		"Tap Strike":
@@ -114,7 +116,8 @@ func _on_spell_cast(spell_name: String, element: String) -> void:
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	hud.update_health(current, maximum)
 	if current < maximum:
-		camera.shake(12.0, 4.0)  # Strong shake when hit
+		camera.shake(12.0, 4.0)
+		audio.play("player_damage")
 
 func _on_player_died() -> void:
 	game_over = true
@@ -130,6 +133,7 @@ func _start_next_wave() -> void:
 	between_waves = false
 	hud.update_wave(wave)
 	hud.show_wave_banner(wave)
+	audio.play("wave_start")
 
 	var enemy_count: int = 2 + wave * 2
 	enemies_remaining_in_wave = enemy_count
@@ -195,12 +199,17 @@ func _show_spawn_warning(pos: Vector2) -> void:
 
 func _on_enemy_killed(enemy: Node) -> void:
 	if not game_over and enemy.hp <= 0:
+		audio.play("enemy_death")
+
 		# Combo tracking
 		combo += 1
 		combo_timer = combo_timeout
 		hud.update_combo(combo)
 
-		var multiplier: int = 1 + combo / 3  # +1x every 3 kills
+		if combo >= 3 and combo % 3 == 0:
+			audio.play("combo", 2.0)
+
+		var multiplier: int = 1 + combo / 3
 		var points: int = 10 * multiplier
 		score += points
 		hud.update_score(score)

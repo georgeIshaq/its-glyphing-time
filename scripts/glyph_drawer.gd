@@ -9,6 +9,7 @@ signal glyph_recognized(result: Dictionary, points: PackedVector2Array)
 
 var is_drawing: bool = false
 var points: PackedVector2Array = []
+var draw_sound_player: AudioStreamPlayer = null
 
 var min_point_distance: float = 8.0
 var normal_time_scale: float = 1.0
@@ -57,6 +58,9 @@ func start_drawing(start_pos: Vector2) -> void:
 	_update_particle_color()
 	draw_particles.global_position = start_pos
 	draw_particles.emitting = true
+
+	# Glyph drawing sound
+	_start_draw_sound()
 
 	points.append(start_pos)
 	stroke_line.add_point(start_pos)
@@ -126,6 +130,22 @@ func clear_stroke() -> void:
 	points = PackedVector2Array()
 	stroke_line.clear_points()
 	draw_particles.emitting = false
+	_stop_draw_sound()
+
+func _start_draw_sound() -> void:
+	var audio = get_node_or_null("/root/Main/AudioManager")
+	if audio and audio.sounds.has("glyph_draw"):
+		draw_sound_player = AudioStreamPlayer.new()
+		draw_sound_player.stream = audio.sounds["glyph_draw"]
+		draw_sound_player.volume_db = -6.0
+		add_child(draw_sound_player)
+		draw_sound_player.play()
+
+func _stop_draw_sound() -> void:
+	if draw_sound_player and is_instance_valid(draw_sound_player):
+		draw_sound_player.stop()
+		draw_sound_player.queue_free()
+		draw_sound_player = null
 
 func _setup_draw_particles() -> void:
 	if draw_particles == null:

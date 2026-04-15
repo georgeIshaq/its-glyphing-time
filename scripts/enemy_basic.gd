@@ -98,6 +98,11 @@ func _spawn_burn_particle() -> void:
 func take_damage(amount: int, element: String) -> void:
 	hp -= amount
 
+	# Hit sound
+	var audio = get_node_or_null("/root/Main/AudioManager")
+	if audio:
+		audio.play("enemy_hit", -3.0)
+
 	# Knockback away from damage source
 	var player = get_tree().get_first_node_in_group("player")
 	if player:

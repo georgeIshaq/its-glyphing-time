@@ -31,6 +31,9 @@ func _draw() -> void:
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("player") and body.has_method("heal"):
 		body.heal(heal_amount)
+		var audio = get_node_or_null("/root/Main/AudioManager")
+		if audio:
+			audio.play("health_pickup")
 		queue_free()
 
 func _fade_out() -> void:
