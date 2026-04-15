@@ -155,27 +155,43 @@ func _pick_enemy_scene() -> PackedScene:
 	else:
 		return ENEMY_BASIC_SCENE
 
-func _spawn_enemy() -> void:
-	enemies_remaining_in_wave -= 1
-	var enemy = _pick_enemy_scene().instantiate()
-
-	# Spawn outside the viewport
+func _get_spawn_position() -> Vector2:
 	var viewport_rect: Rect2 = get_viewport().get_visible_rect()
 	var cam_pos: Vector2 = player.global_position
 	var half_w: float = viewport_rect.size.x * 0.5 + spawn_margin
 	var half_h: float = viewport_rect.size.y * 0.5 + spawn_margin
 
 	var side: int = randi() % 4
-	var spawn_pos: Vector2
 	match side:
-		0: spawn_pos = Vector2(cam_pos.x + randf_range(-half_w, half_w), cam_pos.y - half_h) # top
-		1: spawn_pos = Vector2(cam_pos.x + randf_range(-half_w, half_w), cam_pos.y + half_h) # bottom
-		2: spawn_pos = Vector2(cam_pos.x - half_w, cam_pos.y + randf_range(-half_h, half_h)) # left
-		3: spawn_pos = Vector2(cam_pos.x + half_w, cam_pos.y + randf_range(-half_h, half_h)) # right
+		0: return Vector2(cam_pos.x + randf_range(-half_w, half_w), cam_pos.y - half_h)
+		1: return Vector2(cam_pos.x + randf_range(-half_w, half_w), cam_pos.y + half_h)
+		2: return Vector2(cam_pos.x - half_w, cam_pos.y + randf_range(-half_h, half_h))
+		3: return Vector2(cam_pos.x + half_w, cam_pos.y + randf_range(-half_h, half_h))
+	return cam_pos + Vector2(half_w, 0)
 
+func _spawn_enemy() -> void:
+	enemies_remaining_in_wave -= 1
+	var spawn_pos: Vector2 = _get_spawn_position()
+
+	# Show warning indicator first
+	_show_spawn_warning(spawn_pos)
+
+	# Spawn enemy after warning
+	var scene: PackedScene = _pick_enemy_scene()
+	var timer := get_tree().create_timer(0.6)
+	timer.timeout.connect(_do_spawn.bind(scene, spawn_pos))
+
+func _do_spawn(scene: PackedScene, spawn_pos: Vector2) -> void:
+	var enemy = scene.instantiate()
 	enemy.global_position = spawn_pos
 	enemy.tree_exiting.connect(_on_enemy_killed.bind(enemy))
 	enemies_node.add_child(enemy)
+
+func _show_spawn_warning(pos: Vector2) -> void:
+	var warning := Node2D.new()
+	warning.global_position = pos
+	warning.set_script(load("res://scripts/spawn_warning.gd"))
+	get_tree().current_scene.add_child(warning)
 
 func _on_enemy_killed(enemy: Node) -> void:
 	if not game_over and enemy.hp <= 0:

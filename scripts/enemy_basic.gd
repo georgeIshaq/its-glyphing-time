@@ -4,6 +4,8 @@ extends CharacterBody2D
 @export var hp: int = 3
 @export var enemy_type: String = "basic"
 
+const HEALTH_PICKUP_SCENE := preload("res://scenes/HealthPickup.tscn")
+
 var knockback_velocity: Vector2 = Vector2.ZERO
 var base_move_speed: float = 120.0
 var burn_timer: float = 0.0
@@ -171,7 +173,14 @@ func _spawn_lightning_arc(from: Vector2, to: Vector2) -> void:
 
 func _die(element: String) -> void:
 	_spawn_death_particles(element)
+	_maybe_drop_health()
 	queue_free()
+
+func _maybe_drop_health() -> void:
+	if randf() < 0.15:  # 15% chance
+		var pickup = HEALTH_PICKUP_SCENE.instantiate()
+		pickup.global_position = global_position
+		get_tree().current_scene.call_deferred("add_child", pickup)
 
 func _flash_hit(element: String) -> void:
 	var sprite: Node = get_node_or_null("Sprite2D")

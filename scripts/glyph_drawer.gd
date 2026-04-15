@@ -64,10 +64,21 @@ func append_point_if_far_enough(pos: Vector2) -> void:
 		draw_particles.global_position = pos
 		return
 
-	if points[points.size() - 1].distance_to(pos) >= min_point_distance:
+	var dist: float = points[points.size() - 1].distance_to(pos)
+	if dist >= min_point_distance:
 		points.append(pos)
 		stroke_line.add_point(pos)
 		draw_particles.global_position = pos
+
+		# Dynamic width: faster strokes = thinner, slower = thicker
+		var speed_factor: float = clamp(dist / 30.0, 0.5, 1.5)
+		var base_width: float = 3.0
+		stroke_line.width = base_width / speed_factor
+
+		# Intensify color as stroke gets longer
+		var progress: float = clamp(float(points.size()) / 30.0, 0.0, 1.0)
+		var bright: Color = element_color.lightened(progress * 0.3)
+		stroke_line.default_color = bright
 
 func finish_drawing(release_pos: Vector2) -> void:
 	if not is_drawing:

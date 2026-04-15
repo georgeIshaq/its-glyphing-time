@@ -45,9 +45,41 @@ func _on_body_entered(body: Node) -> void:
 
 	if body.has_method("take_damage"):
 		body.take_damage(damage, element)
+		_spawn_impact()
 
 	if not pierce:
 		queue_free()
+
+func _spawn_impact() -> void:
+	var impact := GPUParticles2D.new()
+	impact.emitting = false
+	impact.amount = 10
+	impact.lifetime = 0.3
+	impact.one_shot = true
+	impact.explosiveness = 1.0
+
+	var mat := ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 0, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 50.0
+	mat.initial_velocity_max = 120.0
+	mat.gravity = Vector3.ZERO
+	mat.scale_min = 1.5
+	mat.scale_max = 3.5
+	mat.damping_min = 50.0
+	mat.damping_max = 80.0
+
+	match element:
+		"fire": mat.color = Color(1.0, 0.5, 0.1)
+		"ice": mat.color = Color(0.5, 0.85, 1.0)
+		"lightning": mat.color = Color(1.0, 1.0, 0.4)
+		_: mat.color = Color.WHITE
+
+	impact.process_material = mat
+	impact.global_position = global_position
+	get_tree().current_scene.add_child(impact)
+	impact.emitting = true
+	get_tree().create_timer(0.8).timeout.connect(impact.queue_free)
 
 func _on_lifetime_expired() -> void:
 	queue_free()
