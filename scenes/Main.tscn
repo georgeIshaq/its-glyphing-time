@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://denb1jo6r1ncw"]
+
+[ext_resource type="Script" uid="uid://bytfl12hytyqw" path="res://scripts/main.gd" id="1_rarhs"]
+[ext_resource type="PackedScene" uid="uid://cso30cjs82oee" path="res://scenes/Player.tscn" id="2_vcsgt"]
+[ext_resource type="Script" uid="uid://xuk1icag7auo" path="res://scripts/glyph_drawer.gd" id="3_c01mt"]
+[ext_resource type="Script" uid="uid://7cgwx7gl5m5u" path="res://scripts/spell_system.gd" id="4_nxtc6"]
+[ext_resource type="PackedScene" uid="uid://cldyt0x1pl3uf" path="res://scenes/EnemyBasic.tscn" id="5_vcsgt"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_rarhs")
+
+[node name="Player" parent="." instance=ExtResource("2_vcsgt")]
+position = Vector2(264, 356)
+
+[node name="GlyphDrawer" type="Node2D" parent="."]
+script = ExtResource("3_c01mt")
+
+[node name="StrokeLine" type="Line2D" parent="GlyphDrawer"]
+default_color = Color(1, 0.04000002, 0.04000002, 1)
+antialiased = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="RecognizedLabel" type="Label" parent="UI"]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="ElementLabel" type="Label" parent="UI"]
+offset_left = 74.0
+offset_top = 64.0
+offset_right = 114.0
+offset_bottom = 87.0
+
+[node name="SpellSystem" type="Node" parent="."]
+script = ExtResource("4_nxtc6")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="EnemyBasic" parent="Enemies" instance=ExtResource("5_vcsgt")]
+position = Vector2(768, 342)
