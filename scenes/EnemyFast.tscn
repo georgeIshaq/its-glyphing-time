@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_fast.gd" id="1_fast"]
+[ext_resource type="Script" path="res://scripts/enemy_sprite.gd" id="2_sprite"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fast"]
+radius = 10.0
+
+[node name="EnemyFast" type="CharacterBody2D"]
+script = ExtResource("1_fast")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_fast")
+
+[node name="Sprite2D" type="Node2D" parent="."]
+script = ExtResource("2_sprite")
+enemy_type = "fast"
+size = 10.0

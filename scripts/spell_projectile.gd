@@ -6,6 +6,9 @@ extends Area2D
 @export var damage: int = 1
 
 var element: String = "fire"
+var pierce: bool = false
+var homing: bool = false
+var homing_strength: float = 4.0
 
 @onready var particles: GPUParticles2D = $GPUParticles2D
 
@@ -19,23 +22,50 @@ func _ready() -> void:
 	timer.one_shot = true
 	timer.wait_time = lifetime
 	add_child(timer)
-	timer.timeout.connect(queue_free)
+	timer.timeout.connect(_on_lifetime_expired)
 	timer.start()
 
 func _process(delta: float) -> void:
-	if direction.length() < 0.001:
-		direction = Vector2.RIGHT
+	# Homing: steer toward nearest enemy
+	if homing:
+		var nearest: Node2D = _find_nearest_enemy()
+		if nearest:
+			var desired: Vector2 = (nearest.global_position - global_position).normalized()
+			direction = direction.normalized().lerp(desired, homing_strength * delta).normalized()
 
-	global_position += direction.normalized() * speed * delta
-	rotation = direction.angle()
+	if speed > 0.0:
+		if direction.length() < 0.001:
+			direction = Vector2.RIGHT
+		global_position += direction.normalized() * speed * delta
+		rotation = direction.angle()
 
 func _on_body_entered(body: Node) -> void:
-	print("projectile hit body:", body.name)
+	if body.is_in_group("player"):
+		return
 
 	if body.has_method("take_damage"):
 		body.take_damage(damage, element)
 
+	if not pierce:
+		queue_free()
+
+func _on_lifetime_expired() -> void:
 	queue_free()
+
+func _find_nearest_enemy() -> Node2D:
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	var nearest: Node2D = null
+	var nearest_dist: float = INF
+
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
+			continue
+		var dist: float = global_position.distance_to(enemy.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = enemy
+
+	return nearest
 
 func _setup_particles() -> void:
 	particles.amount = 16

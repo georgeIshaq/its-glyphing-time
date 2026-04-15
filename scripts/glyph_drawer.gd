@@ -17,6 +17,8 @@ var draw_time_scale: float = 0.25
 var tap_max_bbox_diagonal: float = 22.0
 var tap_max_path_length: float = 28.0
 
+var element_color: Color = Color(1.0, 0.45, 0.1)  # default fire
+
 func _ready() -> void:
 	stroke_line.clear_points()
 
@@ -30,11 +32,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and is_drawing:
 		append_point_if_far_enough(event.position)
 
+func set_element(element: String) -> void:
+	match element:
+		"fire": element_color = Color(1.0, 0.45, 0.1)
+		"ice": element_color = Color(0.45, 0.85, 1.0)
+		"lightning": element_color = Color(1.0, 0.95, 0.3)
+		_: element_color = Color.WHITE
+
 func start_drawing(start_pos: Vector2) -> void:
 	is_drawing = true
 	points = PackedVector2Array()
 	stroke_line.clear_points()
-	stroke_line.default_color = Color(0.5, 0.9, 1.0)
+	stroke_line.default_color = element_color
 
 	Engine.time_scale = draw_time_scale
 

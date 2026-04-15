@@ -15,6 +15,10 @@ run/main_scene="uid://denb1jo6r1ncw"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.08, 0.09, 0.12, 1)
+
 [input]
 
 move_up={
