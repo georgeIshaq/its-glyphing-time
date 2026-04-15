@@ -1,11 +1,11 @@
 [gd_scene load_steps=5 format=3 uid="uid://cso30cjs82oee"]
 
 [ext_resource type="Script" uid="uid://dtqu8ak5ufem6" path="res://scripts/player.gd" id="1_v6fml"]
-[ext_resource type="Script" path="res://scripts/player_sprite.gd" id="2_sprite"]
+[ext_resource type="SpriteFrames" path="res://art/wizard_sprites.tres" id="2_sprites"]
 [ext_resource type="Script" path="res://scripts/player_trail.gd" id="3_trail"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_mdl7e"]
-radius = 14.0
+radius = 16.0
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 script = ExtResource("1_v6fml")
@@ -13,8 +13,10 @@ script = ExtResource("1_v6fml")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_mdl7e")
 
-[node name="Sprite2D" type="Node2D" parent="."]
-script = ExtResource("2_sprite")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_sprites")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="Trail" type="Line2D" parent="."]
 z_index = -1

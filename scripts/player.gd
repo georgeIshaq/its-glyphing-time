@@ -11,11 +11,15 @@ signal player_died
 var hp: int = 5
 var invincible: bool = false
 var contact_timer: float = 0.0
-var facing_angle: float = 0.0
+var facing_right: bool = true
+
+@onready var sprite: AnimatedSprite2D = $Sprite2D
 
 func _ready() -> void:
 	hp = max_hp
 	health_changed.emit(hp, max_hp)
+	sprite.play("idle")
+	sprite.animation_finished.connect(_on_animation_finished)
 
 func _physics_process(delta: float) -> void:
 	var input_vector := Vector2(
@@ -29,13 +33,22 @@ func _physics_process(delta: float) -> void:
 	velocity = input_vector * move_speed
 	move_and_slide()
 
-	# Rotate sprite toward movement direction
-	if input_vector.length() > 0.1:
-		var target_angle: float = input_vector.angle()
-		facing_angle = lerp_angle(facing_angle, target_angle, 10.0 * delta)
-	var sprite = get_node_or_null("Sprite2D")
-	if sprite:
-		sprite.rotation = facing_angle
+	# Animation and facing
+	var is_moving: bool = input_vector.length() > 0.1
+	if is_moving:
+		# Only play fly_start if we weren't already flying
+		if sprite.animation == "idle":
+			sprite.play("fly_start")
+		# Flip based on horizontal direction
+		if input_vector.x > 0.1:
+			facing_right = true
+		elif input_vector.x < -0.1:
+			facing_right = false
+	else:
+		if sprite.animation != "idle":
+			sprite.play("idle")
+
+	sprite.flip_h = facing_right  # sprite naturally faces left
 
 	# Check for enemy contact damage
 	if contact_timer > 0.0:
@@ -48,6 +61,11 @@ func _physics_process(delta: float) -> void:
 				take_damage(1)
 				contact_timer = contact_damage_cooldown
 				break
+
+func _on_animation_finished() -> void:
+	# When fly_start transition ends, switch to the fly_loop
+	if sprite.animation == "fly_start":
+		sprite.play("fly_loop")
 
 func take_damage(amount: int) -> void:
 	if invincible:
