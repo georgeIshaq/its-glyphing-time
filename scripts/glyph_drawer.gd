@@ -24,15 +24,19 @@ func _ready() -> void:
 	stroke_line.clear_points()
 	_setup_draw_particles()
 
+func _screen_to_world(screen_pos: Vector2) -> Vector2:
+	var canvas_xform: Transform2D = get_viewport().get_canvas_transform()
+	return canvas_xform.affine_inverse() * screen_pos
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			start_drawing(event.position)
+			start_drawing(_screen_to_world(event.position))
 		else:
-			finish_drawing(event.position)
+			finish_drawing(_screen_to_world(event.position))
 
 	elif event is InputEventMouseMotion and is_drawing:
-		append_point_if_far_enough(event.position)
+		append_point_if_far_enough(_screen_to_world(event.position))
 
 func set_element(element: String) -> void:
 	match element:
