@@ -16,10 +16,6 @@ var is_frozen: bool = false
 func _ready() -> void:
 	add_to_group("enemies")
 	base_move_speed = move_speed
-	# Configure sprite type
-	var sprite = get_node_or_null("Sprite2D")
-	if sprite and sprite.has_method("_draw"):
-		sprite.enemy_type = enemy_type
 
 func _physics_process(delta: float) -> void:
 	# Status effect timers
@@ -35,6 +31,11 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var dir: Vector2 = (player.global_position - global_position).normalized()
+
+	# Flip sprite to face the player
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite and sprite is AnimatedSprite2D:
+		sprite.flip_h = dir.x > 0  # sprites naturally face left
 
 	# Apply knockback decay
 	knockback_velocity = knockback_velocity.lerp(Vector2.ZERO, 8.0 * delta)

@@ -1,0 +1,88 @@
+[gd_resource type="SpriteFrames" load_steps=13 format=3]
+
+[ext_resource type="Texture2D" path="res://art/Mushroom/Attack3.png" id="1_sheet"]
+
+[sub_resource type="AtlasTexture" id="frame_0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(150, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(300, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_3"]
+atlas = ExtResource("1_sheet")
+region = Rect2(450, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_4"]
+atlas = ExtResource("1_sheet")
+region = Rect2(600, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_5"]
+atlas = ExtResource("1_sheet")
+region = Rect2(750, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_6"]
+atlas = ExtResource("1_sheet")
+region = Rect2(900, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_7"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1050, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_8"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1200, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_9"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1350, 0, 150, 150)
+
+[sub_resource type="AtlasTexture" id="frame_10"]
+atlas = ExtResource("1_sheet")
+region = Rect2(1500, 0, 150, 150)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("frame_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("frame_10")
+}],
+"loop": true,
+"name": &"attack",
+"speed": 7.0
+}]

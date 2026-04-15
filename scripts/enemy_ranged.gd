@@ -12,11 +12,14 @@ func _ready() -> void:
 	move_speed = 90.0
 	hp = 2
 	enemy_type = "ranged"
-	var sprite = get_node_or_null("Sprite2D")
-	if sprite:
-		sprite.enemy_type = "ranged"
 
 func _physics_process(delta: float) -> void:
+	_process_status_effects(delta)
+	if is_frozen:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
@@ -24,6 +27,11 @@ func _physics_process(delta: float) -> void:
 	var to_player: Vector2 = player.global_position - global_position
 	var dist: float = to_player.length()
 	var dir: Vector2 = to_player.normalized()
+
+	# Flip sprite to face the player
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite and sprite is AnimatedSprite2D:
+		sprite.flip_h = dir.x > 0
 
 	# Try to maintain preferred distance
 	knockback_velocity = knockback_velocity.lerp(Vector2.ZERO, 8.0 * delta)

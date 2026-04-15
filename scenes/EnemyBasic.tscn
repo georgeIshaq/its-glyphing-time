@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=3 uid="uid://cldyt0x1pl3uf"]
 
 [ext_resource type="Script" uid="uid://daemvnqc7xjrt" path="res://scripts/enemy_basic.gd" id="1_piult"]
-[ext_resource type="Script" path="res://scripts/enemy_sprite.gd" id="2_sprite"]
+[ext_resource type="SpriteFrames" path="res://art/skeleton_sprites.tres" id="2_sprites"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kex8l"]
-radius = 14.0
+radius = 16.0
 
 [node name="EnemyBasic" type="CharacterBody2D"]
 script = ExtResource("1_piult")
@@ -12,5 +12,8 @@ script = ExtResource("1_piult")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_kex8l")
 
-[node name="Sprite2D" type="Node2D" parent="."]
-script = ExtResource("2_sprite")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.5, 1.5)
+sprite_frames = ExtResource("2_sprites")
+animation = &"attack"
+autoplay = "attack"

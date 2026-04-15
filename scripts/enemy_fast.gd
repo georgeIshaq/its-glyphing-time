@@ -9,11 +9,14 @@ func _ready() -> void:
 	move_speed = 220.0
 	hp = 1
 	enemy_type = "fast"
-	var sprite = get_node_or_null("Sprite2D")
-	if sprite:
-		sprite.enemy_type = "fast"
 
 func _physics_process(delta: float) -> void:
+	_process_status_effects(delta)
+	if is_frozen:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
@@ -26,6 +29,11 @@ func _physics_process(delta: float) -> void:
 
 	var to_player: Vector2 = (player.global_position - global_position).normalized()
 	var strafe: Vector2 = to_player.rotated(PI / 2.0) * strafe_dir * 0.5
+
+	# Flip sprite to face the player
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite and sprite is AnimatedSprite2D:
+		sprite.flip_h = to_player.x > 0
 
 	knockback_velocity = knockback_velocity.lerp(Vector2.ZERO, 8.0 * delta)
 	velocity = (to_player + strafe).normalized() * move_speed + knockback_velocity
