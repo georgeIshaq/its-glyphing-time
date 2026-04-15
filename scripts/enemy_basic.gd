@@ -167,7 +167,7 @@ func _spawn_lightning_arc(from: Vector2, to: Vector2) -> void:
 		line.add_point(pos)
 
 	get_tree().current_scene.add_child(line)
-	var tween := get_tree().create_tween()
+	var tween := line.create_tween()
 	tween.tween_property(line, "modulate:a", 0.0, 0.15)
 	tween.tween_callback(line.queue_free)
 
@@ -210,7 +210,9 @@ func _spawn_damage_number(amount: int, element: String) -> void:
 	label.global_position = global_position + Vector2(-10, -30)
 	get_tree().current_scene.add_child(label)
 
-	var tween := create_tween()
+	# Tween must be bound to the label, not the enemy --
+	# the enemy may die before the animation finishes
+	var tween := label.create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(label, "position:y", label.position.y - 40.0, 0.6)
 	tween.tween_property(label, "modulate:a", 0.0, 0.6)
