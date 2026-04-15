@@ -16,6 +16,11 @@ var active_element: String = "fire"
 var score: int = 0
 var game_over: bool = false
 
+# Combo system
+var combo: int = 0
+var combo_timer: float = 0.0
+var combo_timeout: float = 2.0
+
 # Wave system
 var wave: int = 0
 var enemies_remaining_in_wave: int = 0
@@ -42,6 +47,13 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if game_over:
 		return
+
+	# Combo decay
+	if combo > 0:
+		combo_timer -= delta
+		if combo_timer <= 0.0:
+			combo = 0
+			hud.update_combo(combo)
 
 	# Wave spawning logic
 	if between_waves:
@@ -167,5 +179,12 @@ func _spawn_enemy() -> void:
 
 func _on_enemy_killed(enemy: Node) -> void:
 	if not game_over and enemy.hp <= 0:
-		score += 10
+		# Combo tracking
+		combo += 1
+		combo_timer = combo_timeout
+		hud.update_combo(combo)
+
+		var multiplier: int = 1 + combo / 3  # +1x every 3 kills
+		var points: int = 10 * multiplier
+		score += points
 		hud.update_score(score)

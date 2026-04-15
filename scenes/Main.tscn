@@ -32,6 +32,8 @@ width = 3.0
 default_color = Color(0.5, 0.9, 1.0, 1)
 antialiased = true
 
+[node name="DrawParticles" type="GPUParticles2D" parent="GlyphDrawer"]
+
 [node name="SpellSystem" type="Node" parent="."]
 script = ExtResource("4_nxtc6")
 

@@ -5,6 +5,7 @@ const GlyphRecognizerScript = preload("res://scripts/glyph_recognizer.gd")
 signal glyph_recognized(result: Dictionary, points: PackedVector2Array)
 
 @onready var stroke_line: Line2D = $StrokeLine
+@onready var draw_particles: GPUParticles2D = $DrawParticles
 
 var is_drawing: bool = false
 var points: PackedVector2Array = []
@@ -21,6 +22,7 @@ var element_color: Color = Color(1.0, 0.45, 0.1)  # default fire
 
 func _ready() -> void:
 	stroke_line.clear_points()
+	_setup_draw_particles()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -47,6 +49,11 @@ func start_drawing(start_pos: Vector2) -> void:
 
 	Engine.time_scale = draw_time_scale
 
+	# Start draw particles at cursor
+	_update_particle_color()
+	draw_particles.global_position = start_pos
+	draw_particles.emitting = true
+
 	points.append(start_pos)
 	stroke_line.add_point(start_pos)
 
@@ -54,11 +61,13 @@ func append_point_if_far_enough(pos: Vector2) -> void:
 	if points.is_empty():
 		points.append(pos)
 		stroke_line.add_point(pos)
+		draw_particles.global_position = pos
 		return
 
 	if points[points.size() - 1].distance_to(pos) >= min_point_distance:
 		points.append(pos)
 		stroke_line.add_point(pos)
+		draw_particles.global_position = pos
 
 func finish_drawing(release_pos: Vector2) -> void:
 	if not is_drawing:
@@ -101,6 +110,32 @@ func finish_drawing(release_pos: Vector2) -> void:
 func clear_stroke() -> void:
 	points = PackedVector2Array()
 	stroke_line.clear_points()
+	draw_particles.emitting = false
+
+func _setup_draw_particles() -> void:
+	if draw_particles == null:
+		return
+	draw_particles.amount = 12
+	draw_particles.lifetime = 0.4
+	draw_particles.one_shot = false
+	draw_particles.explosiveness = 0.0
+	draw_particles.randomness = 0.5
+	draw_particles.emitting = false
+
+	var mat := ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 0, 0)
+	mat.spread = 180.0
+	mat.initial_velocity_min = 10.0
+	mat.initial_velocity_max = 30.0
+	mat.gravity = Vector3.ZERO
+	mat.scale_min = 1.0
+	mat.scale_max = 3.0
+	mat.color = element_color
+	draw_particles.process_material = mat
+
+func _update_particle_color() -> void:
+	if draw_particles and draw_particles.process_material:
+		draw_particles.process_material.color = element_color
 
 func get_bounding_box(input_points: PackedVector2Array) -> Rect2:
 	var min_x: float = input_points[0].x

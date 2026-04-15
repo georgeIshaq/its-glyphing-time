@@ -9,6 +9,8 @@ signal restart_requested
 @onready var glyph_label: Label = $CenterFeedback/GlyphLabel
 @onready var spell_label: Label = $CenterFeedback/SpellLabel
 @onready var wave_banner: Label = $CenterFeedback/WaveBanner
+@onready var combo_label: Label = $TopRight/ComboLabel
+@onready var time_slow_overlay: ColorRect = $TimeSlowOverlay
 @onready var game_over_panel: PanelContainer = $GameOverPanel
 @onready var game_over_score: Label = $GameOverPanel/VBoxContainer/FinalScoreLabel
 @onready var game_over_wave: Label = $GameOverPanel/VBoxContainer/FinalWaveLabel
@@ -18,6 +20,15 @@ func _ready() -> void:
 	glyph_label.modulate.a = 0.0
 	spell_label.modulate.a = 0.0
 	wave_banner.modulate.a = 0.0
+	combo_label.modulate.a = 0.0
+	time_slow_overlay.modulate.a = 0.0
+
+func _process(_delta: float) -> void:
+	# Fade time-slow overlay based on Engine.time_scale
+	var target_alpha: float = 0.0
+	if Engine.time_scale < 0.9:
+		target_alpha = (1.0 - Engine.time_scale) * 0.3  # subtle overlay
+	time_slow_overlay.modulate.a = lerp(time_slow_overlay.modulate.a, target_alpha, 0.15)
 
 func update_health(current: int, maximum: int) -> void:
 	health_bar.max_value = maximum
@@ -49,6 +60,33 @@ func update_element(element: String) -> void:
 
 func update_score(value: int) -> void:
 	score_label.text = "Score: %d" % value
+	# Punch effect on score change
+	var tween := create_tween()
+	score_label.scale = Vector2(1.2, 1.2)
+	tween.tween_property(score_label, "scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT)
+
+func update_combo(value: int) -> void:
+	if value <= 1:
+		combo_label.modulate.a = 0.0
+		return
+	var multiplier: int = 1 + value / 3
+	combo_label.text = "%d Combo! x%d" % [value, multiplier]
+	combo_label.modulate.a = 1.0
+
+	# Color based on combo level
+	if multiplier >= 4:
+		combo_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.8))  # pink
+	elif multiplier >= 3:
+		combo_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.3))  # gold
+	elif multiplier >= 2:
+		combo_label.add_theme_color_override("font_color", Color(0.5, 1.0, 0.5))  # green
+	else:
+		combo_label.add_theme_color_override("font_color", Color.WHITE)
+
+	# Punch scale
+	var tween := create_tween()
+	combo_label.scale = Vector2(1.3, 1.3)
+	tween.tween_property(combo_label, "scale", Vector2.ONE, 0.15).set_ease(Tween.EASE_OUT)
 
 func update_wave(value: int) -> void:
 	if value > 0:
