@@ -131,42 +131,46 @@ func recognize(raw_points: PackedVector2Array) -> Dictionary:
 
 # ─── Resampling ───
 
-func resample(points: PackedVector2Array, n: int) -> PackedVector2Array:
-	var total_len: float = get_path_length(points)
+func resample(raw_points: PackedVector2Array, n: int) -> PackedVector2Array:
+	var total_len: float = get_path_length(raw_points)
+
+	# Degenerate case: path too short to resample meaningfully
+	if total_len < 0.001 or n < 2:
+		var result: PackedVector2Array = []
+		for i in range(n):
+			result.append(raw_points[0])
+		return result
+
 	var interval: float = total_len / float(n - 1)
-
-	var result: PackedVector2Array = [points[0]]
+	var result: PackedVector2Array = [raw_points[0]]
 	var accumulated: float = 0.0
-	var i: int = 1
+	var seg_start: Vector2 = raw_points[0]
+	var pt_index: int = 1
 
-	while i < points.size():
-		var seg_len: float = points[i - 1].distance_to(points[i])
+	while result.size() < n - 1 and pt_index < raw_points.size():
+		var seg_end: Vector2 = raw_points[pt_index]
+		var seg_len: float = seg_start.distance_to(seg_end)
+
+		if seg_len < 0.001:
+			pt_index += 1
+			continue
+
 		if accumulated + seg_len >= interval:
-			var t: float = (interval - accumulated) / max(seg_len, 0.001)
-			var new_point: Vector2 = points[i - 1].lerp(points[i], t)
+			var t: float = (interval - accumulated) / seg_len
+			var new_point: Vector2 = seg_start.lerp(seg_end, t)
 			result.append(new_point)
-			# Insert the new point into the array so we can continue from it
-			points = _insert_point(points, i, new_point)
+			seg_start = new_point  # continue from the inserted point
 			accumulated = 0.0
+			# Don't advance pt_index -- remaining segment may hold more points
 		else:
 			accumulated += seg_len
-			i += 1
+			seg_start = seg_end
+			pt_index += 1
 
-	# Pad or trim to exact count
+	# Ensure exactly n points
 	while result.size() < n:
-		result.append(points[points.size() - 1])
-	if result.size() > n:
-		result = result.slice(0, n)
+		result.append(raw_points[raw_points.size() - 1])
 
-	return result
-
-func _insert_point(points: PackedVector2Array, index: int, point: Vector2) -> PackedVector2Array:
-	var result: PackedVector2Array = []
-	for j in range(index):
-		result.append(points[j])
-	result.append(point)
-	for j in range(index, points.size()):
-		result.append(points[j])
 	return result
 
 # ─── Geometry helpers ───
